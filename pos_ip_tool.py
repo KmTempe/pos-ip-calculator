@@ -46,8 +46,12 @@ def calculate_ips():
     
     usable_ips = [f"{ip_prefix}{i}" for i in range(start, end + 1) if f"{ip_prefix}{i}" != gateway_ip]
 
-    result_text.delete(1.0, tk.END)
-    result_text.insert(tk.END, "\n".join(usable_ips))
+    result_text.delete(1.0, tk.END)  # Clear previous content
+    
+    # Print default gateway and recommended dns address with explanation
+    result_text.insert(tk.END, f"The default gateway for {isp} is {gateway_ip}\n")
+    result_text.insert(tk.END, f"Add the same value {gateway_ip} as DNS1 in the terminal options.\nFor DNS2 Use 8.8.8.8 ans as network mask use 255.255.255.0 \n\n ")   
+    result_text.insert(tk.END, "\n".join(usable_ips))  # Insert usable IPs
 
 def toggle_advanced_options():
     if advanced_var.get():
@@ -113,7 +117,7 @@ def apply_dark_theme():
 # Create main window
 root = tk.Tk()
 root.title("IP Address Suggestion Tool")
-root.geometry("300x400")
+root.geometry("550x400")
 
 # Theme toggle button
 theme_var = tk.StringVar(value="Light")
