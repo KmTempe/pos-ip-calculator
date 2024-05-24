@@ -113,7 +113,7 @@ def apply_dark_theme():
 # Create main window
 root = tk.Tk()
 root.title("IP Address Suggestion Tool")
-root.geometry("400x600")
+root.geometry("300x400")
 
 # Theme toggle button
 theme_var = tk.StringVar(value="Light")
