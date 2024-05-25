@@ -112,53 +112,86 @@ class PosIpTool(tk.Tk):
 
     def toggle_advanced_options(self):
         if self.advanced_var.get():
-            self.terminal_combobox.config(state='disabled')
-            self.start_label.grid(row=3, column=0, padx=10, pady=5, sticky="e")
-            self.start_entry.grid(row=3, column=1, padx=10, pady=5, sticky="ew")
-            self.end_label.grid(row=4, column=0, padx=10, pady=5, sticky="e")
-            self.end_entry.grid(row=4, column=1, padx=10, pady=5, sticky="ew")
+            self._show_advanced_options()
         else:
-            self.terminal_combobox.config(state='normal')
-            self.start_label.grid_remove()
-            self.start_entry.grid_remove()
-            self.end_label.grid_remove()
-            self.end_entry.grid_remove()
+            self._hide_advanced_options()
+            
+    def _show_advanced_options(self):
+        self.terminal_combobox.config(state='disabled')
+        self.start_label.grid(row=3, column=0, padx=10, pady=5, sticky="e")
+        self.start_entry.grid(row=3, column=1, padx=10, pady=5, sticky="ew")
+        self.end_label.grid(row=4, column=0, padx=10, pady=5, sticky="e")
+        self.end_entry.grid(row=4, column=1, padx=10, pady=5, sticky="ew")        
+    
+    def _hide_advanced_options(self):
+        self.terminal_combobox.config(state='normal')
+        self.start_label.grid_remove()
+        self.start_entry.grid_remove()
+        self.end_label.grid_remove()
+        self.end_entry.grid_remove() 
+        
+        
+        
+    def _validate_isp(self, isp):
+        if isp not in PosIpTool.isps:
+            messagebox.showerror("Error", "Please select a valid ISP")
+            return False
+        return True
+
+    def _validate_terminal(self, terminal):
+        if terminal not in ["CLASSIC", "Android_Pax"]:
+            messagebox.showerror("Error", "Please select a valid terminal type")
+            return False
+        return True
+
+    def _get_start_and_end(self):
+        start = self.start_entry.get()
+        end = self.end_entry.get()
+
+        if not (start.isdigit() and end.isdigit()):
+            messagebox.showerror("Error", "Please enter valid start and end values")
+            return None, None
+
+        start = int(start)
+        end = int(end)
+
+        if not (1 <= start <= 254 and 1 <= end <= 255 and start < end):
+            messagebox.showerror("Error", "Please enter a valid range (1-255) with start < end")
+            return None, None
+
+        return start, end
+
+    def _get_default_start_and_end(self, terminal):
+        if terminal == "CLASSIC":
+            return 1, 99
+        else:
+            return 1, 255       
+        
+        
 
     def calculate_ips(self):
         isp = self.isp_var.get()
         advanced = self.advanced_var.get()
 
-        if isp not in PosIpTool.isps:
-            messagebox.showerror("Error", "Please select a valid ISP")
+        if not self._validate_isp(isp):
             return
 
         if not advanced:
             terminal = self.terminal_var.get()
-            if terminal not in ["CLASSIC", "Android_Pax"]:
-                messagebox.showerror("Error", "Please select a valid terminal type")
+            if not self._validate_terminal(terminal):
                 return
 
         if advanced:
-            try:
-                start = int(self.start_entry.get())
-                end = int(self.end_entry.get())
-            except ValueError:
-                messagebox.showerror("Error", "Please enter valid start and end values")
-                return
-
-            if start < 1 or end > 254 or start >= end:
-                messagebox.showerror("Error", "Please enter a valid range (1-254) with start < end")
+            start, end = self._get_start_and_end()
+            if start is None or end is None:
                 return
         else:
-            if terminal == "CLASSIC":
-                start, end = 1, 99
-            else:
-                start, end = 1, 254
+            start, end = self._get_default_start_and_end(terminal)
 
         gateway_ip = PosIpTool.isps[isp]["gateway"]
         ip_prefix = gateway_ip.rsplit('.', 1)[0] + "."
 
-        usable_ips = [f"{ip_prefix}{i}" for i in range(start, end + 1) if f"{ip_prefix}{i}" != gateway_ip]
+        usable_ips = [f"{ip_prefix}{i}" for i in range(start, end + 1) if f"{ip_prefix}{i}"!= gateway_ip]
 
         self.result_text.config(state='normal')
         self.result_text.delete(1.0, tk.END)  # Clear previous content
