@@ -1,0 +1,11 @@
+{
+    "name": "Light",
+    "properties": {
+        "bg": "white",
+        "text_color": "black",
+        "bg_color": "lightgrey",
+        "text_bg": "white",
+        "entry_bg": "white",
+        "entry_fg": "black"
+    }
+}
