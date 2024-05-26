@@ -18,15 +18,21 @@ class PosIpTool(tk.Tk):
         self.title("IP Address Suggestion Tool")
         self.geometry("550x400")
         self.theme_var = tk.StringVar(value="Light")
+        
+        if self.check_theme_exists("secret"):
+            self.theme_var.set("secret")  # (͡° ͜ʖ ͡°)
+        else:
+            self.theme_var.set("Light") 
+        
+        self.theme_names = self.get_theme_names()
 
-        self.style = ttk.Style(self)  # Initialize ttk Style
+        self.style = ttk.Style(self)  #
 
         self.create_widgets()
         self.apply_theme()
         self.toggle_advanced_options()  # Ensure advanced options are hidden initially
 
     def create_widgets(self):
-        #if self.check_theme_exists("GreenDark"):
         self.create_theme_button()
         self.create_isp_selection()
         self.create_terminal_selection()
@@ -38,6 +44,11 @@ class PosIpTool(tk.Tk):
     def create_theme_button(self):
         self.theme_button = tk.Button(self, textvariable=self.theme_var, command=self.toggle_theme)
         self.theme_button.grid(row=0, column=2, padx=10, pady=5, sticky="ne")
+
+    def get_theme_names(self):
+        theme_files = os.listdir("themes/")
+        theme_names = [os.path.splitext(theme)[0] for theme in theme_files if theme.endswith(".json")]
+        return theme_names
 
     def create_isp_selection(self):
         self.isp_var = tk.StringVar()
@@ -81,14 +92,13 @@ class PosIpTool(tk.Tk):
             default_theme = {
                 "name": theme_name,
                 "properties": {
-                    "bg": "white" if theme_name == "Light" else "#101010",
-                    "text_color": "black" if theme_name == "Light" else "white",
-                    "bg_color": "lightgrey" if theme_name == "Light" else "grey",
-                    "text_bg": "white" if theme_name == "Light" else "#101010",
-                    "entry_bg": "white" if theme_name == "Light" else "#101010",
-                    "entry_fg": "black" if theme_name == "Light" else "white"
-                }
-            }
+                    "bg": "white",
+                    "text_color": "black",
+                    "bg_color": "lightgrey",
+                    "text_bg": "white",
+                    "entry_bg": "white",
+                    "entry_fg": "black"
+            }}
             with open(theme_file, "w") as f:
                 json.dump(default_theme, f, indent=4)
 
@@ -96,7 +106,7 @@ class PosIpTool(tk.Tk):
         with open(theme_file, "r") as f:
             theme_config = json.load(f)
         return theme_config["properties"]
-
+    
     def check_theme_exists(self, theme_name):
         return os.path.exists(f"themes/{theme_name}.json")
 
@@ -128,16 +138,19 @@ class PosIpTool(tk.Tk):
         self.result_text.config(bg=entry_bg, fg=text_color, insertbackground=text_color)
 
     def toggle_theme(self):
+        available_themes = self.get_theme_names() 
         current_theme = self.theme_var.get()
-        if current_theme == "Light":
-            new_theme = "Dark"
-        elif current_theme == "Dark" and self.check_theme_exists("secret"):
-            new_theme = "secret"
+        
+        if current_theme not in available_themes:
+            new_theme = available_themes[0]
         else:
-            new_theme = "Light"
+            current_index = available_themes.index(current_theme)
+            next_index = (current_index + 1) % len(available_themes)
+            new_theme = available_themes[next_index]
 
         self.theme_var.set(new_theme)
         self.apply_theme()
+        
 
     def toggle_advanced_options(self):
         if self.advanced_var.get():
@@ -230,3 +243,4 @@ class PosIpTool(tk.Tk):
 if __name__ == "__main__":
     app = PosIpTool()
     app.mainloop()
+
