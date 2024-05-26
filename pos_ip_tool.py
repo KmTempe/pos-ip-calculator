@@ -45,7 +45,7 @@ class PosIpTool(tk.Tk):
         self.theme_button.grid(row=0, column=2, padx=10, pady=5, sticky="ne")
 
     def get_theme_names(self):
-        theme_files = os.listdir("themes/")
+        theme_files = os.listdir("themes/") #just create the directory "themes" bug fixed :)
         theme_names = [os.path.splitext(theme)[0] for theme in theme_files if theme.endswith(".json")]
         return theme_names
 
