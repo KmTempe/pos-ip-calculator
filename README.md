@@ -28,25 +28,18 @@ To run the IP Address Suggestion Tool:
 
 3. Open a terminal or command prompt and navigate to the directory where you downloaded the repository. (save your life use VSCODE instead)
 
-4. Once the dependencies are installed, you can run the application by executing the following command:
-   ```
-   python .\pos_ip_tool.py
-   ```
+4. Run `python -m venv {name} on the root`
+   
+5. Connect to the venv via `.\{name}\Scripts\Activate.ps1` 
+   
+6. Let pip do his job `pip install -r requirements.txt`
 
 ### Creating an Executable:
 
 To create a standalone executable file:
 
-1. Install PyInstaller if you haven't already:
-   ```
-   pip install pyinstaller
-   ```
+1. Navigate to the directory containing your Python script (`pos_ip_tool.py`).
 
-2. Navigate to the directory containing your Python script (`pos_ip_tool.py`).
+2. Run the following command to create the executable: `pyinstaller --onedir -i"icon\posiptool.ico" .\pos_ip_tool.py`
 
-3. Run the following command to create the executable:
-   ```
-   pyinstaller --onefile --noconsole .\pos_ip_tool.py
-   ```
-
-4. PyInstaller will create a `dist` directory containing the standalone executable (`pos_ip_tool.exe` on Windows). You can distribute this executable to others.
+3. PyInstaller will create a `dist` directory with the compiled exe
