@@ -2,4 +2,5 @@
 /dist
 /build
 /pos_ip_tool.spec
-/themes/secret.json
+/build/pos_ip_tool
+/icon
