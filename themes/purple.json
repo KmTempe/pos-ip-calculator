@@ -1,0 +1,11 @@
+{
+    "name": "Orange",
+    "properties": {
+        "bg": "orange",
+        "text_color": "black",
+        "bg_color": "lightgrey",
+        "text_bg": "white",
+        "entry_bg": "#d8d8d8",
+        "entry_fg": "black"
+    }
+}
