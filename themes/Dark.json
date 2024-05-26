@@ -1,0 +1,11 @@
+{
+    "name": "Dark",
+    "properties": {
+        "bg": "#101010",
+        "text_color": "white",
+        "bg_color": "grey",
+        "text_bg": "#101010",
+        "entry_bg": "#101010",
+        "entry_fg": "white"
+    }
+}

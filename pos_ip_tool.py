@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from tkinter.scrolledtext import ScrolledText
 import platform
+import os
+import json
 
 class PosIpTool(tk.Tk):
     isps = {
@@ -24,6 +26,7 @@ class PosIpTool(tk.Tk):
         self.toggle_advanced_options()  # Ensure advanced options are hidden initially
 
     def create_widgets(self):
+        #if self.check_theme_exists("GreenDark"):
         self.create_theme_button()
         self.create_isp_selection()
         self.create_terminal_selection()
@@ -71,22 +74,42 @@ class PosIpTool(tk.Tk):
         self.grid_rowconfigure(6, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
+    def load_theme(self, theme_name):
+        theme_file = f"themes/{theme_name}.json"
+        if not os.path.exists(theme_file):
+            # Create the theme file with default values if it doesn't exist
+            default_theme = {
+                "name": theme_name,
+                "properties": {
+                    "bg": "white" if theme_name == "Light" else "#101010",
+                    "text_color": "black" if theme_name == "Light" else "white",
+                    "bg_color": "lightgrey" if theme_name == "Light" else "grey",
+                    "text_bg": "white" if theme_name == "Light" else "#101010",
+                    "entry_bg": "white" if theme_name == "Light" else "#101010",
+                    "entry_fg": "black" if theme_name == "Light" else "white"
+                }
+            }
+            with open(theme_file, "w") as f:
+                json.dump(default_theme, f, indent=4)
+
+        # Load the theme properties from the JSON file
+        with open(theme_file, "r") as f:
+            theme_config = json.load(f)
+        return theme_config["properties"]
+
+    def check_theme_exists(self, theme_name):
+        return os.path.exists(f"themes/{theme_name}.json")
+
     def apply_theme(self):
         current_theme = self.theme_var.get()
-        if current_theme == "Light":
-            self.config(bg="white")
-            text_color = "black"
-            bg_color = "lightgrey"
-            text_bg = "white"
-            entry_bg = "white"
-            entry_fg = "black"
-        else:
-            self.config(bg="#101010")
-            text_color = "white"
-            bg_color = "grey"
-            text_bg = "#101010"
-            entry_bg = "#101010"
-            entry_fg = "white"
+        theme_config = self.load_theme(current_theme)
+
+        self.config(bg=theme_config["bg"])
+        text_color = theme_config["text_color"]
+        bg_color = theme_config["bg_color"]
+        text_bg = theme_config["text_bg"]
+        entry_bg = theme_config["entry_bg"]
+        entry_fg = theme_config["entry_fg"]
 
         for widget in self.winfo_children():
             widget_type = widget.winfo_class()
@@ -106,7 +129,13 @@ class PosIpTool(tk.Tk):
 
     def toggle_theme(self):
         current_theme = self.theme_var.get()
-        new_theme = "Light" if current_theme == "Dark" else "Dark"
+        if current_theme == "Light":
+            new_theme = "Dark"
+        elif current_theme == "Dark" and self.check_theme_exists("secret"):
+            new_theme = "secret"
+        else:
+            new_theme = "Light"
+
         self.theme_var.set(new_theme)
         self.apply_theme()
 
@@ -115,23 +144,21 @@ class PosIpTool(tk.Tk):
             self._show_advanced_options()
         else:
             self._hide_advanced_options()
-            
+
     def _show_advanced_options(self):
         self.terminal_combobox.config(state='disabled')
         self.start_label.grid(row=3, column=0, padx=10, pady=5, sticky="e")
         self.start_entry.grid(row=3, column=1, padx=10, pady=5, sticky="ew")
         self.end_label.grid(row=4, column=0, padx=10, pady=5, sticky="e")
         self.end_entry.grid(row=4, column=1, padx=10, pady=5, sticky="ew")        
-    
+
     def _hide_advanced_options(self):
         self.terminal_combobox.config(state='normal')
         self.start_label.grid_remove()
         self.start_entry.grid_remove()
         self.end_label.grid_remove()
         self.end_entry.grid_remove() 
-        
-        
-        
+
     def _validate_isp(self, isp):
         if isp not in PosIpTool.isps:
             messagebox.showerror("Error", "Please select a valid ISP")
@@ -165,9 +192,7 @@ class PosIpTool(tk.Tk):
         if terminal == "CLASSIC":
             return 1, 99
         else:
-            return 1, 255       
-        
-        
+            return 1, 255
 
     def calculate_ips(self):
         isp = self.isp_var.get()
@@ -191,7 +216,7 @@ class PosIpTool(tk.Tk):
         gateway_ip = PosIpTool.isps[isp]["gateway"]
         ip_prefix = gateway_ip.rsplit('.', 1)[0] + "."
 
-        usable_ips = [f"{ip_prefix}{i}" for i in range(start, end + 1) if f"{ip_prefix}{i}"!= gateway_ip]
+        usable_ips = [f"{ip_prefix}{i}" for i in range(start, end + 1) if f"{ip_prefix}{i}" != gateway_ip]
 
         self.result_text.config(state='normal')
         self.result_text.delete(1.0, tk.END)  # Clear previous content
@@ -201,7 +226,7 @@ class PosIpTool(tk.Tk):
         self.result_text.insert(tk.END, "\n".join(usable_ips))  # Insert usable IPs
 
         self.result_text.config(state='disabled')
-        
+
 if __name__ == "__main__":
     app = PosIpTool()
     app.mainloop()
